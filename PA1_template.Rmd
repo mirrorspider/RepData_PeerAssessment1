@@ -19,7 +19,16 @@ output:
 
 
 ## Imputing missing values
-
+```{r}
+is.weekday <- function(x){
+    w <- as.Date(x)
+    w <- weekdays(w)
+    if (w == "Saturday" || w == "Sunday")
+        FALSE
+    else
+        TRUE
+}
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
