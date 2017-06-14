@@ -7,28 +7,71 @@ output:
 
 
 ## Loading and preprocessing the data
-
-
+```{r}
+# Unzip the source file
+act.zipfile.name <- "./activity.zip"
+act.csvfile.name <- "./activity.csv"
+if(!file.exists(act.csvfile.name)){
+        unzip(act.zipfile.name)
+}
+# read csv file into data table
+activity.original <- read.csv(act.csvfile.name)
+```
 
 ## What is mean total number of steps taken per day?
-
-
+```{r}
+# aggregate the data by day
+act.by.date.orig <- aggregate(steps ~ date, data = activity.original, 
+                              FUN = sum)
+summ.by.date.orig <- summary(act.by.date.orig$steps)
+# extract and format requested statisitcs
+disp.mean <- format(summ.by.date.orig[["Mean"]], scientific = FALSE)
+disp.median <- format(summ.by.date.orig[["Median"]], scientific = FALSE)
+# display the summary information
+summ.by.date.orig
+```
+As can be seen above, the mean number of steps taken is **`r disp.mean`** and the 
+median is **`r disp.median`**.
+```{r fig.height=4}
+# Store histogram info for axis formatting
+disp.hist.info <- hist(act.by.date.orig$steps, breaks = "FD", plot = FALSE)
+# Histogram of total steps per day
+hist(act.by.date.orig$steps, breaks = "FD", col = "orange", 
+     xlab = "Steps per day (1000's)", main = "Histogram of Steps per Day",
+     axes = FALSE)
+axis(side = 1, at = disp.hist.info$breaks,
+     labels = (disp.hist.info$breaks/1000))
+axis( side = 2, at = seq(0,max(disp.hist.info$counts), by = 4))
+```
 
 ## What is the average daily activity pattern?
+```{r fig.height=4}
+# aggregate the data by interval
+act.by.interval.orig <- aggregate(steps ~ interval, data = activity.original, 
+                              FUN = mean)
+busy.interval <- act.by.interval.orig[
+        act.by.interval.orig$steps == max(act.by.interval.orig$steps),
+        ]
+disp.int.name <- as.character(busy.interval$interval)
+disp.int.steps <- format(busy.interval$steps, scientific = FALSE)
+plot(act.by.interval.orig, type = "l", col = "dark blue",
+     main = "Mean Steps by Interval")
+```
 
-
+The busiest interval is **`r disp.int.name`** with on average **`r disp.int.steps`** steps.
 
 ## Imputing missing values
 ```{r}
 is.weekday <- function(x){
-    w <- as.Date(x)
-    w <- weekdays(w)
-    if (w == "Saturday" || w == "Sunday")
-        FALSE
-    else
-        TRUE
+        w <- as.Date(x)
+        w <- weekdays(w)
+        if (w == "Saturday" || w == "Sunday")
+                FALSE
+        else
+                TRUE
 }
 ```
 
+So is today a weekday? `r is.weekday("2017-06-12")`
 
 ## Are there differences in activity patterns between weekdays and weekends?
