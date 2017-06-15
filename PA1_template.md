@@ -1,13 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r pre-process}
+
+```r
 # Unzip the source file
 act.zipfile.name <- "./activity.zip"
 act.csvfile.name <- "./activity.csv"
@@ -19,7 +15,8 @@ activity.original <- read.csv(act.csvfile.name)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r steps-by-day}
+
+```r
 # aggregate the data by day
 act.by.date.orig <- aggregate(steps ~ date, data = activity.original, 
                               FUN = sum)
@@ -31,10 +28,16 @@ disp.median <- format(summ.by.date.orig[["Median"]], scientific = FALSE)
 summ.by.date.orig
 ```
 
-As can be seen above, the mean number of steps taken is **`r disp.mean`** 
-and the median is **`r disp.median`**.
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10765   10766   13294   21194
+```
 
-```{r steps-histogram, fig.height=4}
+As can be seen above, the mean number of steps taken is **10766.19** 
+and the median is **10765**.
+
+
+```r
 # Store histogram info for axis formatting
 disp.hist.info <- hist(act.by.date.orig$steps, breaks = "FD", plot = FALSE)
 # Histogram of total steps per day
@@ -46,8 +49,11 @@ axis(side = 1, at = disp.hist.info$breaks,
 axis( side = 2, at = seq(0,max(disp.hist.info$counts), by = 4))
 ```
 
+![](PA1_template_files/figure-html/steps-histogram-1.png)<!-- -->
+
 ## What is the average daily activity pattern?
-```{r daily-activity, fig.height=4}
+
+```r
 # aggregate the data by interval
 act.by.interval.orig <- aggregate(steps ~ interval, data = activity.original, 
                               FUN = mean)
@@ -60,18 +66,22 @@ plot(act.by.interval.orig, type = "l", col = "dark blue",
      main = "Mean Steps by Interval")
 ```
 
-The busiest interval is **`r disp.int.name`** with on average 
-**`r disp.int.steps`** steps.
+![](PA1_template_files/figure-html/daily-activity-1.png)<!-- -->
+
+The busiest interval is **835** with on average 
+**206.1698** steps.
 
 ## Imputing missing values
-```{r missing-values}
+
+```r
 # take a copy of the original data for further processing
 num.nas <- sum(is.na(activity.original$steps))
 ```
 
-Number of NA records in the dataset is **`r num.nas`**.
+Number of NA records in the dataset is **2304**.
 
-```{r fill-blanks}
+
+```r
 activity.imputed <- activity.original
 # use the mean for a given interval to extrapolate missing values
 activity.imputed$steps <- replace(activity.imputed$steps, 
@@ -88,10 +98,16 @@ disp.median <- format(summ.by.date.imp[["Median"]], scientific = FALSE)
 summ.by.date.imp
 ```
 
-As can be seen above, with the extrapolated data the mean number of steps 
-taken is **`r disp.mean`** and the median is **`r disp.median`**.
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10766   10766   12811   21194
+```
 
-```{r steps-histogram-imp, fig.height=4}
+As can be seen above, with the extrapolated data the mean number of steps 
+taken is **10766.19** and the median is **10766.19**.
+
+
+```r
 # Store histogram info for axis formatting
 disp.hist.info <- hist(act.by.date.imp$steps, breaks = "FD", plot = FALSE)
 # Histogram of total steps per day
@@ -103,6 +119,8 @@ axis(side = 1, at = disp.hist.info$breaks,
      labels = (disp.hist.info$breaks/1000))
 axis( side = 2, at = seq(0,max(disp.hist.info$counts), by = 4))
 ```
+
+![](PA1_template_files/figure-html/steps-histogram-imp-1.png)<!-- -->
 
 Extrapolating the data in this way has not materially changed the pattern of
 data but has increased some of the raw figures.  
@@ -116,7 +134,8 @@ interval to reduce the likelihood of weekday patterns being extrapolated to
 weekends.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-``` {r weekday-differences}
+
+```r
 # function that returns true if a given date is a weekday
 is.weekday <- function(x){
         w <- as.Date(x)
@@ -142,4 +161,6 @@ xyplot(steps ~ interval | weekday,
        data = act.by.interval.imp, type = "l", layout = c(1,2), 
        main = "Activity on Weekends vs. Weekdays")
 ```
+
+![](PA1_template_files/figure-html/weekday-differences-1.png)<!-- -->
 
